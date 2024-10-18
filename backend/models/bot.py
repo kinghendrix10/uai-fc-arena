@@ -1,3 +1,4 @@
+# backend/models/bot.py
 from . import db
 
 class Bot(db.Model):

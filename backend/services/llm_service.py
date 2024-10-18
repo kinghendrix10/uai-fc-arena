@@ -1,4 +1,7 @@
+# backend/services/llm_service.py
 import openai
+import groq
+import cerebras
 import requests
 
 class LLMService:

@@ -1,3 +1,4 @@
+# backend/models/npc_bot.py
 from . import db
 
 class NPCBot(db.Model):

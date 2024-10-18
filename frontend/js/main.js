@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    const API_URL = 'http://localhost:5000'; // Update this with your backend URL
+    const API_URL = 'https://redesigned-barnacle-j7vpgxjqq54fqg5j-5000.app.github.dev/'; // Update this with your backend URL
 
     // Check login status on page load
     checkLoginStatus();
@@ -24,7 +24,7 @@ $(document).ready(function() {
         const password = $('#register-password').val();
         const llm_provider = $('#register-llm-provider').val();
         const api_key = $('#register-api-key').val();
-
+    
         $.ajax({
             url: API_URL + '/register',
             type: 'POST',
@@ -33,6 +33,8 @@ $(document).ready(function() {
             success: function(data) {
                 showAlert('Registration successful!', 'success');
                 $('#register-form')[0].reset();
+                // Automatically transition to logged-in state
+                checkLoginStatus();
             },
             error: function(err) {
                 showAlert('Error: ' + err.responseJSON.error, 'danger');

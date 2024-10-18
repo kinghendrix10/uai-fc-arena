@@ -1,3 +1,4 @@
+# backend/services/battle_service.py
 from models import Bot, User, NPCBot
 from utils.prompt_evaluator import evaluate_prompt
 import random

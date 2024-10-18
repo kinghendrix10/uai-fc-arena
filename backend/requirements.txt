@@ -1,8 +1,10 @@
+# backend/requirements.txt
 Flask
 Flask-Bcrypt
 Flask-Session
 Flask-Cors
 Flask-SQLAlchemy
+Flask-Migrate
 SQLAlchemy
 openai
 requests
@@ -11,3 +13,4 @@ language-tool-python
 python-dotenv
 cerebras-cloud-sdk
 groq
+setuptools

@@ -1,3 +1,4 @@
+# backend/services/bot_service.py
 from models import Bot, User, NPCBot
 
 class BotService:

@@ -1,5 +1,7 @@
+# backend/app.py
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 from flask_cors import CORS
@@ -10,13 +12,24 @@ from services.llm_service import LLMService
 from utils.security import login_required
 from models import db, User, Bot, NPCBot
 from utils.prompt_evaluator import evaluate_prompt_detailed
+from flask import render_template
+import os
 
-app = Flask(__name__)
+# Get the absolute path of the current file (app.py)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Navigate up one level to the project root, then to the frontend/templates directory
+template_dir = os.path.join(os.path.dirname(current_dir), 'frontend', 'templates')
+
+static_dir = os.path.join(os.path.dirname(current_dir), 'frontend')
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 app.config.from_object(Config)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 db.init_app(app)
+migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
 Session(app)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 # Initialize services
 bot_service = BotService(db)
@@ -41,10 +54,15 @@ def register():
     db.session.add(new_user)
     try:
         db.session.commit()
-        return jsonify({'message': 'User registered successfully'}), 201
+        session['user_id'] = new_user.id  # Set session after successful registration
+        return jsonify({'message': 'User registered successfully', 'user_id': new_user.id}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -59,7 +77,6 @@ def login():
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
 
-@app.route('/logout', methods=['POST'])
 @app.route('/evaluate_prompt', methods=['POST'])
 @login_required
 def logout():
@@ -131,4 +148,4 @@ def evaluate_prompt_route():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=5000)

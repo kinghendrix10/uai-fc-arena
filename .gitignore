@@ -3,6 +3,8 @@
 *__pycache__
 *flask_session
 *instance
+*migrations
 spec.txt
 spec.md
 *.aider.*
+*.env
