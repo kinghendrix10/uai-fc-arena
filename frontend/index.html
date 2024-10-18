@@ -41,6 +41,14 @@
                         <input type="password" class="form-control" id="register-password" required>
                     </div>
                     <div class="form-group">
+                        <label for="register-llm-provider">LLM Provider</label>
+                        <select id="register-llm-provider" class="form-control" required>
+                            <option value="openai">OpenAI</option>
+                            <option value="cerebras">Cerebras</option>
+                            <option value="groq">Groq</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="register-api-key">LLM API Key</label>
                         <input type="password" class="form-control" id="register-api-key" required>
                     </div>
@@ -117,6 +125,14 @@
         <div id="battle-arena" class="mb-5" style="display: none;">
             <h2>Battle Arena</h2>
             <form id="battle-form">
+                <!-- Select Battle Type -->
+                <div class="form-group">
+                    <label for="battle-type">Choose Battle Type</label>
+                    <select id="battle-type" class="form-control" required>
+                        <option value="user">Battle Other Users</option>
+                        <option value="npc">Train Against NPC</option>
+                    </select>
+                </div>
                 <!-- Select Your Bot -->
                 <div class="form-group">
                     <label for="select-bot">Select Your Bot</label>
@@ -125,10 +141,17 @@
                     </select>
                 </div>
                 <!-- Select Opponent Bot -->
-                <div class="form-group">
+                <div class="form-group" id="opponent-bot-group">
                     <label for="select-opponent-bot">Select Opponent Bot</label>
                     <select id="select-opponent-bot" class="form-control" required>
                         <!-- Opponent bots will be populated here -->
+                    </select>
+                </div>
+                <!-- Select NPC Bot -->
+                <div class="form-group" id="npc-bot-group" style="display: none;">
+                    <label for="select-npc-bot">Select NPC Bot</label>
+                    <select id="select-npc-bot" class="form-control" required>
+                        <!-- NPC bots will be populated here -->
                     </select>
                 </div>
                 <!-- Prompt Input -->
@@ -136,6 +159,15 @@
                     <label for="prompt-input">Enter Your Action Prompt</label>
                     <textarea id="prompt-input" class="form-control" rows="3" maxlength="100" required></textarea>
                     <small class="form-text text-muted">Max 100 characters.</small>
+                    <!-- Prompt Evaluation Feedback -->
+                    <div id="prompt-feedback" class="mt-2">
+                        <p><strong>Prompt Evaluation:</strong></p>
+                        <ul>
+                            <li>Complexity: <span id="complexity-score">-</span></li>
+                            <li>Efficiency: <span id="efficiency-score">-</span></li>
+                            <li>Compatibility: <span id="compatibility-score">-</span></li>
+                        </ul>
+                    </div>
                 </div>
                 <!-- Battle Button -->
                 <button type="submit" class="btn btn-danger">Start Battle</button>
