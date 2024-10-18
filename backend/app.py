@@ -1,5 +1,3 @@
-# backend/app.py
-
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -9,7 +7,7 @@ from config import Config
 from services.bot_service import BotService
 from services.battle_service import BattleService
 from services.llm_service import LLMService
-from utils.security import login_required, admin_required, validate_api_key
+from utils.security import login_required
 from models import db, User, Bot, NPCBot
 from utils.prompt_evaluator import evaluate_prompt_detailed
 
@@ -33,22 +31,18 @@ def register():
     api_key = data.get('api_key')
     llm_provider = data.get('llm_provider', 'openai')
 
-    if not username or not password or not api_key:
+    if not username or not password or not api_key or not llm_provider:
         return jsonify({'error': 'Missing required fields'}), 400
 
-    if User.query.filter_by(username=username).first():
-        return jsonify({'error': 'Username already exists'}), 400
-
-    new_user = User(username=username, api_key=api_key, llm_provider=llm_provider)
-    new_user.set_password(password)
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    new_user = User(username=username, password=hashed_password, api_key=api_key, llm_provider=llm_provider)
     db.session.add(new_user)
-    
     try:
         db.session.commit()
         return jsonify({'message': 'User registered successfully'}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 400
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -115,6 +109,7 @@ def get_npc_bots():
     npc_bots = bot_service.get_npc_bots()
     return jsonify([bot.to_dict() for bot in npc_bots]), 200
 
+@app.route('/evaluate_prompt', methods=['POST'])
 @login_required
 def evaluate_prompt_route():
     data = request.json
