@@ -9,7 +9,7 @@ import language_tool_python
 nltk.download('punkt', quiet=True)
 nltk.download('wordnet', quiet=True)
 
-def evaluate_prompt(prompt, stats):
+def evaluate_prompt_detailed(prompt, stats):
     # Complexity: Based on linguistic complexity
     complexity = lexical_diversity(prompt) + syntactic_complexity(prompt)
 
@@ -19,8 +19,17 @@ def evaluate_prompt(prompt, stats):
     # Compatibility: Based on alignment with bot stats
     compatibility = calculate_compatibility(prompt, stats)
 
+    return {
+        'complexity': complexity,
+        'efficiency': efficiency,
+        'compatibility': compatibility
+    }
+
+# Modify evaluate_prompt to use evaluate_prompt_detailed
+def evaluate_prompt(prompt, stats):
+    scores = evaluate_prompt_detailed(prompt, stats)
     # Composite score
-    score = (complexity * 0.3) + (efficiency * 0.3) + (compatibility * 0.4)
+    score = (scores['complexity'] * 0.3) + (scores['efficiency'] * 0.3) + (scores['compatibility'] * 0.4)
     return score
 
 def lexical_diversity(prompt):
