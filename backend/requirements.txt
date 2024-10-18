@@ -1,16 +1,3 @@
-Flask
-Flask-Bcrypt
-Flask-Session
-Flask-Cors
-Flask-SQLAlchemy
-SQLAlchemy
-openai
-requests
-nltk
-language-tool-python
-python-dotenv
-cerebras-cloud-sdk
-groq
 Flask==2.1.0
 Flask-Bcrypt==1.0.1
 Flask-Session==0.4.0

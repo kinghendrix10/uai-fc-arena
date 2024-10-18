@@ -10,3 +10,5 @@ class Config:
     SESSION_TYPE = 'filesystem'
     SESSION_PERMANENT = False
     CORS_HEADERS = 'Content-Type'
+    FLASK_APP = 'app.py'
+    FLASK_ENV = os.getenv('FLASK_ENV', 'development')

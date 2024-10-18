@@ -23,6 +23,8 @@ bot_service = BotService(db)
 llm_service = LLMService()
 battle_service = BattleService(bot_service, llm_service)
 
+# Ensure all routes are properly defined here
+
 @app.route('/register', methods=['POST'])
 def register():
     data = request.json
