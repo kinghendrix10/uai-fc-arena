@@ -13,9 +13,9 @@ class BattleService:
         bot = self.bot_service.get_bot_by_id(bot_id)
         if is_npc:
             opponent_bot = self.bot_service.get_npc_bot_by_id(opponent_bot_id)
-            opponent_user = None  # NPC has no user
-            opponent_api_key = None  # Use default API key or model
-            opponent_provider = 'default'  # Default LLM model for NPCs
+            opponent_user = None
+            opponent_api_key = None
+            opponent_provider = 'default'
         else:
             opponent_bot = self.bot_service.get_bot_by_id(opponent_bot_id)
             opponent_user = User.query.get(opponent_bot.user_id)
@@ -32,29 +32,18 @@ class BattleService:
         user_api_key = user.api_key
         user_provider = user.llm_provider
 
-        # Generate actions using LLMs
         user_action = self.llm_service.generate_action(user_provider, user_api_key, prompt)
         opponent_prompt = self.generate_opponent_prompt(opponent_bot)
         opponent_action = self.llm_service.generate_action(opponent_provider, opponent_api_key, opponent_prompt)
 
-        # Evaluate prompts
         user_score = evaluate_prompt(prompt, bot.stats)
         opponent_score = evaluate_prompt(opponent_prompt, opponent_bot.stats)
 
-        # Calculate outcome
         outcome = self.calculate_outcome(bot, opponent_bot, user_score, opponent_score)
 
-        # Update stats
-        if outcome['winner'] == bot.name:
-            bot.wins += 1
-            opponent_bot.losses += 1
-            bot.experience += 10
-        else:
-            bot.losses += 1
-            opponent_bot.wins += 1
-            opponent_bot.experience += 10
-
-        self.bot_service.db.session.commit()
+        self.bot_service.update_bot_stats(bot, win=(outcome['winner'] == bot.name))
+        if not is_npc:
+            self.bot_service.update_bot_stats(opponent_bot, win=(outcome['winner'] == opponent_bot.name))
 
         result = {
             'winner': outcome['winner'],

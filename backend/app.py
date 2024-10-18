@@ -9,7 +9,7 @@ from config import Config
 from services.bot_service import BotService
 from services.battle_service import BattleService
 from services.llm_service import LLMService
-from utils.security import login_required
+from utils.security import login_required, admin_required, validate_api_key
 from models import db, User, Bot, NPCBot
 from utils.prompt_evaluator import evaluate_prompt_detailed
 
@@ -33,18 +33,22 @@ def register():
     api_key = data.get('api_key')
     llm_provider = data.get('llm_provider', 'openai')
 
-    if not username or not password or not api_key or not llm_provider:
+    if not username or not password or not api_key:
         return jsonify({'error': 'Missing required fields'}), 400
 
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(username=username, password=hashed_password, api_key=api_key, llm_provider=llm_provider)
+    if User.query.filter_by(username=username).first():
+        return jsonify({'error': 'Username already exists'}), 400
+
+    new_user = User(username=username, api_key=api_key, llm_provider=llm_provider)
+    new_user.set_password(password)
     db.session.add(new_user)
+    
     try:
         db.session.commit()
         return jsonify({'message': 'User registered successfully'}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/login', methods=['POST'])
 def login():
