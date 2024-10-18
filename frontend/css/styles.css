@@ -1,0 +1,54 @@
+/* frontend/css/styles.css */
+
+body {
+    background-color: #1a1a2e;
+    color: #e94560;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.btn-primary, .btn-success, .btn-danger {
+    background-color: #e94560;
+    border: none;
+}
+
+.btn-primary:hover, .btn-success:hover, .btn-danger:hover {
+    background-color: #d03353;
+}
+
+.list-group-item {
+    background-color: #16213e;
+    border: none;
+    color: #e94560;
+}
+
+.table-dark {
+    background-color: #16213e;
+}
+
+.form-control {
+    background-color: #0f3460;
+    color: #e94560;
+    border: 1px solid #e94560;
+}
+
+.form-control:focus {
+    background-color: #16213e;
+    color: #e94560;
+}
+
+.alert {
+    background-color: #e94560;
+    color: #1a1a2e;
+    border: none;
+}
+
+.alert-dismissible .close {
+    color: #1a1a2e;
+}
+
+#total-points {
+    font-weight: bold;
+}
