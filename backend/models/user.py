@@ -9,6 +9,7 @@ class User(db.Model):
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(200), nullable=False)
     api_key = db.Column(db.String(100), nullable=False)
+    llm_provider = db.Column(db.String(20), nullable=False, default='openai')
 
     bots = db.relationship('Bot', backref='owner', lazy=True)
 
