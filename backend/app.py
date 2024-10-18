@@ -11,6 +11,7 @@ from services.battle_service import BattleService
 from services.llm_service import LLMService
 from utils.security import login_required
 from models import db, User, Bot, NPCBot
+from utils.prompt_evaluator import evaluate_prompt_detailed
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -108,6 +109,21 @@ def battle():
 def get_npc_bots():
     npc_bots = bot_service.get_npc_bots()
     return jsonify([bot.to_dict() for bot in npc_bots]), 200
+
+@login_required
+def evaluate_prompt_route():
+    data = request.json
+    prompt = data.get('prompt', '')
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+    # For compatibility calculation, we need user's bot stats
+    # Let's assume the user wants to evaluate the prompt for their first bot
+    bot = Bot.query.filter_by(user_id=user_id).first()
+    if not bot:
+        return jsonify({'error': 'No bots found for user'}), 400
+
+    scores = evaluate_prompt_detailed(prompt, bot.stats)
+    return jsonify(scores), 200
 
 if __name__ == '__main__':
     with app.app_context():
