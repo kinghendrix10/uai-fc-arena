@@ -24,13 +24,14 @@ $(document).ready(function() {
         e.preventDefault();
         const username = $('#register-username').val();
         const password = $('#register-password').val();
+        const llm_provider = $('#register-llm-provider').val();
         const api_key = $('#register-api-key').val();
 
         $.ajax({
             url: API_URL + '/register',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ username, password, api_key }),
+            data: JSON.stringify({ username, password, llm_provider, api_key }),
             success: function(data) {
                 showAlert('Registration successful!', 'success');
                 $('#register-form')[0].reset();
@@ -100,6 +101,7 @@ $(document).ready(function() {
                 });
                 updateBotList();
                 updateOpponentBotList();
+                updateNPCBotList();
                 updateLeaderboard();
             },
             error: function(err) {
@@ -211,6 +213,24 @@ $(document).ready(function() {
         });
     }
 
+    // Update NPC Bot List
+    function updateNPCBotList() {
+        $.ajax({
+            url: API_URL + '/get_npc_bots',
+            type: 'GET',
+            success: function(bots) {
+                const selectNPCBot = $('#select-npc-bot');
+                selectNPCBot.empty().append('<option value="">Select NPC Bot</option>');
+                bots.forEach(bot => {
+                    selectNPCBot.append(`<option value="${bot.id}">${bot.name}</option>`);
+                });
+            },
+            error: function(err) {
+                showAlert('Error fetching NPC bots.', 'danger');
+            }
+        });
+    }
+
     // Update Leaderboard
     function updateLeaderboard() {
         $.ajax({
@@ -238,15 +258,69 @@ $(document).ready(function() {
         });
     }
 
+    // Battle Type Selection
+    $('#battle-type').on('change', function() {
+        const battleType = $(this).val();
+        if (battleType === 'user') {
+            $('#opponent-bot-group').show();
+            $('#npc-bot-group').hide();
+        } else if (battleType === 'npc') {
+            $('#opponent-bot-group').hide();
+            $('#npc-bot-group').show();
+        }
+    });
+
+    // Prompt Input - Real-time Evaluation
+    $('#prompt-input').on('input', function() {
+        const prompt = $(this).val();
+        evaluatePrompt(prompt);
+    });
+
+    function evaluatePrompt(prompt) {
+        $.ajax({
+            url: API_URL + '/evaluate_prompt',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ prompt }),
+            success: function(data) {
+                $('#complexity-score').text(data.complexity.toFixed(2));
+                $('#efficiency-score').text(data.efficiency.toFixed(2));
+                $('#compatibility-score').text(data.compatibility.toFixed(2));
+            },
+            error: function(err) {
+                $('#complexity-score').text('-');
+                $('#efficiency-score').text('-');
+                $('#compatibility-score').text('-');
+            }
+        });
+    }
+
     // Battle Submission
     $('#battle-form').on('submit', function(e) {
         e.preventDefault();
         const bot_id = $('#select-bot').val();
-        const opponent_bot_id = $('#select-opponent-bot').val();
+        const battle_type = $('#battle-type').val();
         const prompt = $('#prompt-input').val();
+        let opponent_bot_id = null;
+        let is_npc = false;
 
-        if (!bot_id || !opponent_bot_id) {
-            showAlert('Please select both your bot and an opponent bot.', 'danger');
+        if (battle_type === 'user') {
+            opponent_bot_id = $('#select-opponent-bot').val();
+            if (!opponent_bot_id) {
+                showAlert('Please select an opponent bot.', 'danger');
+                return;
+            }
+        } else if (battle_type === 'npc') {
+            opponent_bot_id = $('#select-npc-bot').val();
+            is_npc = true;
+            if (!opponent_bot_id) {
+                showAlert('Please select an NPC bot.', 'danger');
+                return;
+            }
+        }
+
+        if (!bot_id) {
+            showAlert('Please select your bot.', 'danger');
             return;
         }
 
@@ -254,7 +328,7 @@ $(document).ready(function() {
             url: API_URL + '/battle',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ bot_id, opponent_bot_id, prompt }),
+            data: JSON.stringify({ bot_id, opponent_bot_id, prompt, is_npc }),
             success: function(data) {
                 showAlert(`Battle completed! Winner: ${data.winner}`, 'success');
                 $('#battle-winner').text(data.winner);
