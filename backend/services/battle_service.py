@@ -68,7 +68,7 @@ class BattleService:
         strategies = {
             'Strength': 'Use your immense strength to overpower the opponent.',
             'Agility': 'Dodge the attacks swiftly and strike back.',
-            'Intelligence': 'Analyze the opponent's weaknesses and exploit them.',
+            "Intelligence": "Analyze the opponent's weaknesses and exploit them.",
             'Defense': 'Brace yourself and block incoming attacks effectively.'
         }
         highest_stat = max(opponent_bot.stats, key=opponent_bot.stats.get)
