@@ -31,12 +31,13 @@ def register():
     username = data.get('username')
     password = data.get('password')
     api_key = data.get('api_key')
+    llm_provider = data.get('llm_provider', 'openai')
 
-    if not username or not password or not api_key:
+    if not username or not password or not api_key or not llm_provider:
         return jsonify({'error': 'Missing required fields'}), 400
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(username=username, password=hashed_password, api_key=api_key)
+    new_user = User(username=username, password=hashed_password, api_key=api_key, llm_provider=llm_provider)
     db.session.add(new_user)
     try:
         db.session.commit()
