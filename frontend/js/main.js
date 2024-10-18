@@ -1,7 +1,5 @@
-// frontend/js/main.js
-
 $(document).ready(function() {
-    const API_URL = ''; // Set this to your backend API URL if different
+    const API_URL = 'http://localhost:5000'; // Update this with your backend URL
 
     // Check login status on page load
     checkLoginStatus();
