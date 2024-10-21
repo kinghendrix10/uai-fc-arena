@@ -30,6 +30,7 @@ UAI FC Arena is an interactive platform where users can create and battle AI-pow
 
 2. Set up a virtual environment:
    ```
+   cd backend
    python -m venv venv
    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
    ```

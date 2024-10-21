@@ -6,12 +6,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAI FC Arena - LLM Driven Battles</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/frontend/css/styles.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">UAI FC Arena</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto" id="auth-links"></ul>
         </div>
@@ -64,36 +68,40 @@
             </div>
         </div>
 
-        <div id="bot-creator" class="mb-5" style="display: none;">
-            <h2>Create Your Bot</h2>
-            <form id="bot-form">
-                <div class="form-group">
-                    <label for="bot-name">Bot Name</label>
-                    <input type="text" class="form-control" id="bot-name" required>
-                </div>
+        <div id="bot-creator" class="mb-5 card" style="display: none;">
+            <div class="card-header">
+                <h2>Create Your Bot</h2>
+            </div>
+            <div class="card-body">
+                <form id="bot-form">
+                    <div class="form-group">
+                        <label for="bot-name">Bot Name</label>
+                        <input type="text" class="form-control" id="bot-name" required>
+                    </div>
 
-                <h4>Allocate Stats (Total Points: <span id="total-points">0</span>/100)</h4>
-                <div class="form-row">
-                    <div class="form-group col-md-3">
-                        <label for="strength">Strength</label>
-                        <input type="number" class="form-control stat-input" id="strength" min="0" max="25" value="0">
+                    <h4>Allocate Stats (Total Points: <span id="total-points">0</span>/100)</h4>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="strength">Strength</label>
+                            <input type="number" class="form-control stat-input" id="strength" min="0" max="25" value="0">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="agility">Agility</label>
+                            <input type="number" class="form-control stat-input" id="agility" min="0" max="25" value="0">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="intelligence">Intelligence</label>
+                            <input type="number" class="form-control stat-input" id="intelligence" min="0" max="25" value="0">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="defense">Defense</label>
+                            <input type="number" class="form-control stat-input" id="defense" min="0" max="25" value="0">
+                        </div>
                     </div>
-                    <div class="form-group col-md-3">
-                        <label for="agility">Agility</label>
-                        <input type="number" class="form-control stat-input" id="agility" min="0" max="25" value="0">
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label for="intelligence">Intelligence</label>
-                        <input type="number" class="form-control stat-input" id="intelligence" min="0" max="25" value="0">
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label for="defense">Defense</label>
-                        <input type="number" class="form-control stat-input" id="defense" min="0" max="25" value="0">
-                    </div>
-                </div>
 
-                <button type="submit" class="btn btn-primary">Create Bot</button>
-            </form>
+                    <button type="submit" class="btn btn-primary">Create Bot</button>
+                </form>
+            </div>
         </div>
 
         <div id="bot-list-section" class="mb-5" style="display: none;">
@@ -101,51 +109,55 @@
             <ul class="list-group" id="bot-list"></ul>
         </div>
 
-        <div id="battle-arena" class="mb-5" style="display: none;">
-            <h2>Battle Arena</h2>
-            <form id="battle-form">
-                <div class="form-group">
-                    <label for="battle-type">Choose Battle Type</label>
-                    <select id="battle-type" class="form-control" required>
-                        <option value="user">Battle Other Users</option>
-                        <option value="npc">Train Against NPC</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="select-bot">Select Your Bot</label>
-                    <select id="select-bot" class="form-control" required></select>
-                </div>
-                <div class="form-group" id="opponent-bot-group">
-                    <label for="select-opponent-bot">Select Opponent Bot</label>
-                    <select id="select-opponent-bot" class="form-control" required></select>
-                </div>
-                <div class="form-group" id="npc-bot-group" style="display: none;">
-                    <label for="select-npc-bot">Select NPC Bot</label>
-                    <select id="select-npc-bot" class="form-control" required></select>
-                </div>
-                <div class="form-group">
-                    <label for="prompt-input">Enter Your Action Prompt</label>
-                    <textarea id="prompt-input" class="form-control" rows="3" maxlength="100" required></textarea>
-                    <small class="form-text text-muted">Max 100 characters.</small>
-                    <div id="prompt-feedback" class="mt-2">
-                        <p><strong>Prompt Evaluation:</strong></p>
-                        <ul>
-                            <li>Complexity: <span id="complexity-score">-</span></li>
-                            <li>Efficiency: <span id="efficiency-score">-</span></li>
-                            <li>Compatibility: <span id="compatibility-score">-</span></li>
-                        </ul>
+        <div id="battle-arena" class="mb-5 card" style="display: none;">
+            <div class="card-header">
+                <h2>Battle Arena</h2>
+            </div>
+            <div class="card-body">
+                <form id="battle-form">
+                    <div class="form-group">
+                        <label for="battle-type">Choose Battle Type</label>
+                        <select id="battle-type" class="form-control" required>
+                            <option value="user">Battle Other Users</option>
+                            <option value="npc">Train Against NPC</option>
+                        </select>
                     </div>
-                </div>
-                <button type="submit" class="btn btn-danger">Start Battle</button>
-            </form>
+                    <div class="form-group">
+                        <label for="select-bot">Select Your Bot</label>
+                        <select id="select-bot" class="form-control" required></select>
+                    </div>
+                    <div class="form-group" id="opponent-bot-group">
+                        <label for="select-opponent-bot">Select Opponent Bot</label>
+                        <select id="select-opponent-bot" class="form-control" required></select>
+                    </div>
+                    <div class="form-group" id="npc-bot-group" style="display: none;">
+                        <label for="select-npc-bot">Select NPC Bot</label>
+                        <select id="select-npc-bot" class="form-control" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="prompt-input">Enter Your Action Prompt</label>
+                        <textarea id="prompt-input" class="form-control" rows="3" maxlength="100" required></textarea>
+                        <small class="form-text text-muted">Max 100 characters.</small>
+                        <div id="prompt-feedback" class="mt-2">
+                            <p><strong>Prompt Evaluation:</strong></p>
+                            <ul>
+                                <li>Complexity: <span id="complexity-score">-</span></li>
+                                <li>Efficiency: <span id="efficiency-score">-</span></li>
+                                <li>Compatibility: <span id="compatibility-score">-</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Start Battle</button>
+                </form>
 
-            <div id="battle-results" class="mt-4" style="display: none;">
-                <h3>Battle Results</h3>
-                <p><strong>Winner:</strong> <span id="battle-winner"></span></p>
-                <p><strong>Your Action:</strong> <span id="user-action"></span></p>
-                <p><strong>Opponent's Action:</strong> <span id="opponent-action"></span></p>
-                <p><strong>Details:</strong></p>
-                <ul id="battle-details"></ul>
+                <div id="battle-results" class="mt-4" style="display: none;">
+                    <h3>Battle Results</h3>
+                    <p><strong>Winner:</strong> <span id="battle-winner"></span></p>
+                    <p><strong>Your Action:</strong> <span id="user-action"></span></p>
+                    <p><strong>Opponent's Action:</strong> <span id="opponent-action"></span></p>
+                    <p><strong>Details:</strong></p>
+                    <ul id="battle-details"></ul>
+                </div>
             </div>
         </div>
 
@@ -168,6 +180,8 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/frontend/js/main.js"></script>
 </body>
 </html>

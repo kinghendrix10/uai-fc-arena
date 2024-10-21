@@ -1,5 +1,5 @@
 # backend/app.py
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
@@ -10,9 +10,8 @@ from services.bot_service import BotService
 from services.battle_service import BattleService
 from services.llm_service import LLMService
 from utils.security import login_required
-from models import db, User, Bot, NPCBot
 from utils.prompt_evaluator import evaluate_prompt_detailed
-from flask import render_template
+from models import db, User, Bot, NPCBot
 import os
 
 # Get the absolute path of the current file (app.py)
@@ -25,6 +24,7 @@ static_dir = os.path.join(os.path.dirname(current_dir), 'frontend')
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 app.config.from_object(Config)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['SESSION_TYPE'] = 'filesystem'
 db.init_app(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
@@ -40,6 +40,7 @@ battle_service = BattleService(bot_service, llm_service)
 
 @app.route('/register', methods=['POST'])
 def register():
+    """Handle user registration."""
     data = request.json
     username = data.get('username')
     password = data.get('password')
@@ -77,9 +78,10 @@ def login():
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
 
-@app.route('/evaluate_prompt', methods=['POST'])
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout():
+    """Handle user logout."""
     session.clear()
     return jsonify({'message': 'Logged out successfully'}), 200
 
@@ -132,12 +134,11 @@ def get_npc_bots():
 @app.route('/evaluate_prompt', methods=['POST'])
 @login_required
 def evaluate_prompt_route():
+    """Evaluate a prompt for a user's bot."""
     data = request.json
     prompt = data.get('prompt', '')
     user_id = session['user_id']
     user = User.query.get(user_id)
-    # For compatibility calculation, we need user's bot stats
-    # Let's assume the user wants to evaluate the prompt for their first bot
     bot = Bot.query.filter_by(user_id=user_id).first()
     if not bot:
         return jsonify({'error': 'No bots found for user'}), 400

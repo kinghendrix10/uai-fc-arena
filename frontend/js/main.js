@@ -1,5 +1,7 @@
+// File: frontend/js/main.js
+
 $(document).ready(function() {
-    const API_URL = 'https://redesigned-barnacle-j7vpgxjqq54fqg5j-5000.app.github.dev/'; // Update this with your backend URL
+    const API_URL = 'http://127.0.0.1:5000/'; // Update this with your backend URL
 
     // Check login status on page load
     checkLoginStatus();
@@ -15,6 +17,11 @@ $(document).ready(function() {
             totalPoints += parseInt($(this).val()) || 0;
         });
         $('#total-points').text(totalPoints);
+        if (totalPoints > 100) {
+            $('#total-points').addClass('text-danger');
+        } else {
+            $('#total-points').removeClass('text-danger');
+        }
     }
 
     // Registration Form Submission
@@ -24,17 +31,18 @@ $(document).ready(function() {
         const password = $('#register-password').val();
         const llm_provider = $('#register-llm-provider').val();
         const api_key = $('#register-api-key').val();
-    
+
         $.ajax({
-            url: API_URL + '/register',
+            url: `${API_URL}/register`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ username, password, llm_provider, api_key }),
             success: function(data) {
-                showAlert('Registration successful!', 'success');
+                showAlert('Registration successful! Please log in.', 'success');
                 $('#register-form')[0].reset();
-                // Automatically transition to logged-in state
-                checkLoginStatus();
+                $('html, body').animate({
+                    scrollTop: $('#login-form').offset().top
+                }, 500);
             },
             error: function(err) {
                 showAlert('Error: ' + err.responseJSON.error, 'danger');
@@ -49,10 +57,13 @@ $(document).ready(function() {
         const password = $('#login-password').val();
 
         $.ajax({
-            url: API_URL + '/login',
+            url: `${API_URL}/login`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ username, password }),
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(data) {
                 showAlert('Login successful!', 'success');
                 $('#login-form-element')[0].reset();
@@ -67,8 +78,11 @@ $(document).ready(function() {
     // Logout Function
     function logout() {
         $.ajax({
-            url: API_URL + '/logout',
+            url: `${API_URL}/logout`,
             type: 'POST',
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(data) {
                 showAlert('Logged out successfully!', 'success');
                 checkLoginStatus();
@@ -82,8 +96,11 @@ $(document).ready(function() {
     // Check Login Status
     function checkLoginStatus() {
         $.ajax({
-            url: API_URL + '/get_bots',
+            url: `${API_URL}/get_bots`,
             type: 'GET',
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(data) {
                 // User is logged in
                 $('#auth-forms').hide();
@@ -95,10 +112,7 @@ $(document).ready(function() {
                         <a class="nav-link" href="#" id="logout-link">Logout</a>
                     </li>
                 `);
-                $('#logout-link').on('click', function(e) {
-                    e.preventDefault();
-                    logout();
-                });
+                $('#logout-link').on('click', logout);
                 updateBotList();
                 updateOpponentBotList();
                 updateNPCBotList();
@@ -118,19 +132,13 @@ $(document).ready(function() {
                         <a class="nav-link" href="#" id="login-link">Login</a>
                     </li>
                 `);
-                $('#register-link').on('click', function(e) {
+                $('#register-link, #login-link').off('click').on('click', function(e) {
                     e.preventDefault();
+                    const target = $(this).attr('id') === 'register-link' ? '#registration-form' : '#login-form';
                     $('html, body').animate({
-                        scrollTop: $('#registration-form').offset().top
+                        scrollTop: $(target).offset().top
                     }, 500);
                 });
-                $('#login-link').on('click', function(e) {
-                    e.preventDefault();
-                    $('html, body').animate({
-                        scrollTop: $('#login-form').offset().top
-                    }, 500);
-                });
-                updateLeaderboard();
             }
         });
     }
@@ -146,21 +154,20 @@ $(document).ready(function() {
             'Defense': parseInt($('#defense').val()) || 0
         };
 
-        // Validate total points
-        let totalPoints = 0;
-        for (let key in stats) {
-            totalPoints += stats[key];
-        }
+        let totalPoints = Object.values(stats).reduce((a, b) => a + b, 0);
         if (totalPoints > 100) {
             showAlert('Total points allocated exceed 100. Please adjust your stats.', 'danger');
             return;
         }
 
         $.ajax({
-            url: API_URL + '/create_bot',
+            url: `${API_URL}/create_bot`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ name, stats }),
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(data) {
                 showAlert('Bot created successfully!', 'success');
                 $('#bot-form')[0].reset();
@@ -177,15 +184,23 @@ $(document).ready(function() {
     // Update User's Bot List
     function updateBotList() {
         $.ajax({
-            url: API_URL + '/get_bots',
+            url: `${API_URL}/get_bots`,
             type: 'GET',
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(bots) {
                 const botList = $('#bot-list');
                 const selectBot = $('#select-bot');
                 botList.empty();
                 selectBot.empty().append('<option value="">Select Your Bot</option>');
                 bots.forEach(bot => {
-                    botList.append(`<li class="list-group-item">${bot.name} - Wins: ${bot.wins}, Losses: ${bot.losses}</li>`);
+                    botList.append(`
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            ${bot.name}
+                            <span class="badge badge-primary badge-pill">Wins: ${bot.wins} | Losses: ${bot.losses}</span>
+                        </li>
+                    `);
                     selectBot.append(`<option value="${bot.id}">${bot.name}</option>`);
                 });
             },
@@ -198,7 +213,7 @@ $(document).ready(function() {
     // Update Opponent Bot List
     function updateOpponentBotList() {
         $.ajax({
-            url: API_URL + '/get_leaderboard',
+            url: `${API_URL}/get_leaderboard`,
             type: 'GET',
             success: function(bots) {
                 const selectOpponentBot = $('#select-opponent-bot');
@@ -216,7 +231,7 @@ $(document).ready(function() {
     // Update NPC Bot List
     function updateNPCBotList() {
         $.ajax({
-            url: API_URL + '/get_npc_bots',
+            url: `${API_URL}/get_npc_bots`,
             type: 'GET',
             success: function(bots) {
                 const selectNPCBot = $('#select-npc-bot');
@@ -234,7 +249,7 @@ $(document).ready(function() {
     // Update Leaderboard
     function updateLeaderboard() {
         $.ajax({
-            url: API_URL + '/get_leaderboard',
+            url: `${API_URL}/get_leaderboard`,
             type: 'GET',
             success: function(leaderboard) {
                 const leaderboardBody = $('#leaderboard-body');
@@ -278,10 +293,13 @@ $(document).ready(function() {
 
     function evaluatePrompt(prompt) {
         $.ajax({
-            url: API_URL + '/evaluate_prompt',
+            url: `${API_URL}/evaluate_prompt`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ prompt }),
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(data) {
                 $('#complexity-score').text(data.complexity.toFixed(2));
                 $('#efficiency-score').text(data.efficiency.toFixed(2));
@@ -325,10 +343,13 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: API_URL + '/battle',
+            url: `${API_URL}/battle`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ bot_id, opponent_bot_id, prompt, is_npc }),
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(data) {
                 showAlert(`Battle completed! Winner: ${data.winner}`, 'success');
                 $('#battle-winner').text(data.winner);
@@ -360,7 +381,7 @@ $(document).ready(function() {
                 </button>
             </div>
         `);
-        $('#alert-placeholder').append(alertDiv);
+        $('#alert-placeholder').empty().append(alertDiv);
         setTimeout(() => {
             alertDiv.alert('close');
         }, 5000);

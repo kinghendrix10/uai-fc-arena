@@ -1,52 +1,77 @@
 body {
-    background-color: #1a1a2e;
-    color: #e94560;
+    background-image: url('../assets/city.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #071942;
+    font-family: 'Roboto', sans-serif;
+}
+
+.navbar {
+    background-color: rgba(16, 1, 43, 0.8) !important;
+    border-bottom: 2px solid #05d9e8;
 }
 
 .navbar-brand {
+    color: #05d9e8 !important;
     font-weight: bold;
 }
 
-.btn-primary, .btn-success, .btn-danger {
-    background-color: #e94560;
+.nav-link {
+    color: #d1f7ff !important;
+}
+
+.btn {
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #05d9e8;
     border: none;
 }
 
-.btn-primary:hover, .btn-success:hover, .btn-danger:hover {
-    background-color: #d03353;
+.btn-primary:hover {
+    background-color: #ff2a6d;
 }
 
-.list-group-item {
-    background-color: #16213e;
-    border: none;
-    color: #e94560;
+.container {
+    max-width: 800px;
+    margin-top: 50px;
 }
 
-.table-dark {
-    background-color: #16213e;
+.card {
+    background-color: rgba(16, 1, 43, 0.9);
+    border-radius: 10px;
+    padding: 20px;
 }
 
 .form-control {
-    background-color: #0f3460;
-    color: #e94560;
-    border: 1px solid #e94560;
+    background-color: #01012b;
+    border: 1px solid #05d9e8;
+    color: #d1f7ff;
 }
 
 .form-control:focus {
-    background-color: #16213e;
-    color: #e94560;
+    border-color: #ff2a6d;
 }
 
 .alert {
-    background-color: #e94560;
-    color: #1a1a2e;
-    border: none;
+    border-radius: 5px;
 }
 
-.alert-dismissible .close {
-    color: #1a1a2e;
+.alert-success {
+    background-color: #2cb67d;
 }
 
-#total-points {
-    font-weight: bold;
+.alert-danger {
+    background-color: #e53170;
+}
+
+#battle-arena, #bot-creator, #leaderboard-section {
+    margin-top: 20px;
+}
+
+#battle-results {
+    display: none;
 }
